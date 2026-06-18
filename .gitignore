@@ -1,0 +1,5 @@
+/wally-preview
+/dist/
+*.env
+.env
+!.env.example

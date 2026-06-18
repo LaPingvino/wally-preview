@@ -1,0 +1,19 @@
+# Route the URL-preview endpoints to wally-preview; everything else to the
+# homeserver. The matcher covers all three preview_url variants:
+#   /_matrix/media/v3/preview_url          (matrix-js-sdk / Cinny today)
+#   /_matrix/media/r0/preview_url          (older clients)
+#   /_matrix/client/v1/media/preview_url   (authenticated media — Element / newer SDKs)
+#
+# Place this block in your existing Matrix site. The @preview matcher must come
+# BEFORE the catch-all handle so it wins for the preview paths only.
+
+matrix.example.eu {
+	@preview path /_matrix/media/*/preview_url /_matrix/client/*/media/preview_url
+	handle @preview {
+		reverse_proxy 127.0.0.1:8088
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:6167
+	}
+}
