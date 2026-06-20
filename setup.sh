@@ -53,7 +53,7 @@ echo ""
 echo "    !admin users create-user wally-preview $PASSWORD"
 echo ""
 echo "If you use Synapse, run this on your server terminal:"
-echo "    register_new_matrix_user -c /etc/matrix-synapse/homeserver.yaml -u wally-preview -p $PASSWORD --admin"
+echo "    register_new_matrix_user -c /etc/matrix-synapse/homeserver.yaml -u wally-preview -p $PASSWORD --no-admin"
 echo ""
 read -p "Once the user has been created, press [Enter] to continue and log in..."
 

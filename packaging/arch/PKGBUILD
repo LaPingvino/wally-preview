@@ -1,0 +1,61 @@
+# Maintainer: Joop Kiefte <joop@kiefte.eu>
+pkgname=wally-preview-git
+_pkgname=wally-preview
+pkgdesc="SSRF-hardened Matrix URL-preview service — answers /preview_url in front of a homeserver so it never fetches untrusted content"
+pkgver=r1.ecf296b
+pkgrel=1
+arch=('x86_64' 'aarch64')
+url="https://github.com/LaPingvino/wally-preview"
+license=('MIT')
+makedepends=('git' 'go')
+backup=('etc/wally-preview.env')
+install=wally-preview.install
+source=("${_pkgname}::git+https://github.com/LaPingvino/wally-preview.git#branch=main")
+sha256sums=('SKIP')
+provides=('wally-preview')
+conflicts=('wally-preview')
+
+pkgver() {
+  cd "${srcdir}/${_pkgname}"
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  cd "${srcdir}/${_pkgname}"
+  export GOPATH="${srcdir}/gopath"
+  export GOCACHE="${srcdir}/gocache"
+  go mod download
+}
+
+build() {
+  cd "${srcdir}/${_pkgname}"
+  export CGO_ENABLED=0
+  export GOPATH="${srcdir}/gopath"
+  export GOCACHE="${srcdir}/gocache"
+  export GOFLAGS="-trimpath -mod=readonly -modcacherw"
+  go build -ldflags "-s -w -buildid=" -o "${_pkgname}" .
+}
+
+package() {
+  cd "${srcdir}/${_pkgname}"
+
+  # Binary
+  install -Dm755 "${_pkgname}" "${pkgdir}/usr/bin/${_pkgname}"
+
+  # systemd unit — ready to activate once /etc/wally-preview.env is configured.
+  install -Dm644 "${_pkgname}.service" \
+    "${pkgdir}/usr/lib/systemd/system/${_pkgname}.service"
+
+  # Config template. The upload token is empty by default, so the service will
+  # not start until an admin fills it in (backup= keeps edits across upgrades).
+  install -Dm640 .env.example "${pkgdir}/etc/wally-preview.env"
+
+  # Sample Caddy snippet + full docs (security model, config table).
+  install -Dm644 Caddyfile.example \
+    "${pkgdir}/usr/share/doc/${_pkgname}/Caddyfile.example"
+  install -Dm644 README.md \
+    "${pkgdir}/usr/share/doc/${_pkgname}/README.md"
+
+  install -Dm644 LICENSE \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

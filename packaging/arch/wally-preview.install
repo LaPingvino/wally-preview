@@ -1,0 +1,33 @@
+post_install() {
+  cat <<'EOF'
+
+==> wally-preview installed.
+
+  It runs in front of your homeserver and answers URL previews safely, so the
+  homeserver itself never fetches untrusted links. To activate:
+
+  1. Create a DEDICATED, low-privilege Matrix account and get its access token
+     (used only to upload preview images). Then edit:
+         /etc/wally-preview.env
+     Set WALLY_PREVIEW_UPLOAD_TOKEN= (and WALLY_PREVIEW_HOMESERVER if your
+     homeserver is not http://127.0.0.1:6167).
+
+  2. Route the preview endpoints to the shim. A ready snippet is at:
+         /usr/share/doc/wally-preview/Caddyfile.example
+     Include its @preview block in your Matrix site, then reload Caddy.
+
+  3. Disable your homeserver's OWN url previews so it never fetches untrusted
+     content (Continuwuity: leave url_preview_domain_explicit_allowlist empty).
+
+  4. Enable and start the service:
+         systemctl enable --now wally-preview
+         curl -fsS http://127.0.0.1:8088/healthz && echo OK
+
+  Full security model + config table: /usr/share/doc/wally-preview/README.md
+
+EOF
+}
+
+post_upgrade() {
+  echo "==> wally-preview upgraded. Restart it: systemctl restart wally-preview"
+}

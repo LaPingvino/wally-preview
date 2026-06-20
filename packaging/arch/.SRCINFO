@@ -1,0 +1,18 @@
+pkgbase = wally-preview-git
+	pkgdesc = SSRF-hardened Matrix URL-preview service — answers /preview_url in front of a homeserver so it never fetches untrusted content
+	pkgver = r1.ecf296b
+	pkgrel = 1
+	url = https://github.com/LaPingvino/wally-preview
+	install = wally-preview.install
+	arch = x86_64
+	arch = aarch64
+	license = MIT
+	makedepends = git
+	makedepends = go
+	provides = wally-preview
+	conflicts = wally-preview
+	backup = etc/wally-preview.env
+	source = wally-preview::git+https://github.com/LaPingvino/wally-preview.git#branch=main
+	sha256sums = SKIP
+
+pkgname = wally-preview-git

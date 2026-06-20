@@ -96,6 +96,17 @@ You can use the interactive setup script to compile, install the binary and syst
 ./setup.sh
 ```
 
+### Arch Linux (PKGBUILD)
+
+A `-git` package is in [`packaging/arch/`](packaging/arch/). It builds a static
+binary and installs the systemd unit, an `/etc/wally-preview.env` template
+(token left empty, so the service stays inactive until configured), and the
+docs. `post_install` prints the activation steps.
+
+```bash
+cd packaging/arch && makepkg -si
+```
+
 ### Manual Setup
 
 1. **Build**: `go build -o wally-preview .` (or use the [`Dockerfile`](Dockerfile)).
