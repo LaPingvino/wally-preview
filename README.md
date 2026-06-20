@@ -88,6 +88,16 @@ All via environment variables (see [`.env.example`](.env.example)):
 
 ## Deploy
 
+### Automated Setup (Recommended)
+
+You can use the interactive setup script to compile, install the binary and systemd service, auto-generate credentials, retrieve the access token, and configure the environment:
+
+```bash
+./setup.sh
+```
+
+### Manual Setup
+
 1. **Build**: `go build -o wally-preview .` (or use the [`Dockerfile`](Dockerfile)).
 2. **Configure**: copy `.env.example` → `/etc/wally-preview.env`, set
    `WALLY_PREVIEW_UPLOAD_TOKEN` (create a dedicated account, log in, grab its
