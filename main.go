@@ -76,7 +76,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:              cfg.Listen,
-		Handler:           logging(mux),
+		Handler:           logging(cors(mux)),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
@@ -198,6 +198,28 @@ func writeJSON(w http.ResponseWriter, code int, v any) {
 
 func httpErr(w http.ResponseWriter, code int, errcode, msg string) {
 	writeJSON(w, code, map[string]string{"errcode": errcode, "error": msg})
+}
+
+// cors makes the shim answer like a homeserver. We take over standard C-S
+// endpoints, and the spec requires those to be reachable from any web origin —
+// the homeserver we sit in front of sends `Access-Control-Allow-Origin: *` on
+// everything it serves, so the paths the reverse proxy diverts here must too.
+// Without this, a client hosted on a different origin than the homeserver gets
+// its preflight refused and sees every preview fail with a CORS error.
+func cors(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h := w.Header()
+		h.Set("Access-Control-Allow-Origin", "*")
+		h.Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		h.Set("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Authorization")
+		if r.Method == http.MethodOptions {
+			// Preflight: answer here, before handlePreview's GET-only check.
+			h.Set("Access-Control-Max-Age", "86400")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // logging records method, path, the target host (never the token) and status.
